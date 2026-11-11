@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SilenceCutter Pro — Studio Edition</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <div class="app-shell">
+    <!-- ÜST STÜDYO BAR -->
+    <header class="top-bar">
+      <div class="brand-group">
+        <div class="logo-box">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="6" r="3"></circle>
+            <circle cx="6" cy="18" r="3"></circle>
+            <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
+            <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
+            <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="title-row">
+            <h1>SilenceCutter</h1>
+            <span class="pro-tag">STUDIO</span>
+          </div>
+          <p class="seq-subtitle" id="seqNameLabel">Sekans aranıyor...</p>
+        </div>
+      </div>
+
+      <div class="top-controls">
+        <div class="status-pill" id="statusBadge">
+          <span class="status-dot"></span>
+          <span class="status-text" id="statusText">Hazır</span>
+        </div>
+        <button class="icon-btn" id="btnRefreshSeq" title="Sekans Bilgilerini Yenile (Shift+Tık: Paneli Yeniden Yükle)">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- SEKANS TELEMETRİ ŞERİDİ -->
+    <div class="telemetry-strip" id="seqInfoBar">
+      <div class="telemetry-item">
+        <span class="telemetry-label">KARE HIZI</span>
+        <strong class="telemetry-val" id="metaFps">-- FPS</strong>
+      </div>
+      <div class="telemetry-divider"></div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">TOPLAM SÜRE</span>
+        <strong class="telemetry-val" id="metaDur">--:--</strong>
+      </div>
+      <div class="telemetry-divider"></div>
+      <div class="telemetry-item">
+        <span class="telemetry-label">SEÇİLİ KLİP</span>
+        <strong class="telemetry-val" id="metaSel">0</strong>
+      </div>
+    </div>
+
+    <!-- 01. KAYNAK KAPSAMI VE SES KATMANI -->
+    <section class="glass-card">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="step-badge">01</span>
+          <span>Analiz Kapsamı &amp; Ses Katmanı</span>
+        </div>
+      </div>
+
+      <!-- Segmented Scope Control -->
+      <div class="segmented-control" id="scopeSegmented">
+        <button type="button" class="seg-btn active" data-scope="auto">Akıllı Seçim</button>
+        <button type="button" class="seg-btn" data-scope="selected">Seçili Klip</button>
+        <button type="button" class="seg-btn" data-scope="all">Tüm Sekans</button>
+      </div>
+      <select id="scopeSelect" class="sr-only" aria-hidden="true">
+        <option value="auto" selected>Otomatik</option>
+        <option value="selected">Seçili</option>
+        <option value="all">Tümü</option>
+      </select>
+
+      <!-- Ses Katmanları -->
+      <div class="tracks-list" id="audioTracksContainer">
+        <div class="empty-hint">Sekans yükleniyor...</div>
+      </div>
+
+      <button class="btn-primary-scan" id="btnAnalyze">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12h2l3-9 4 18 4-14 3 5h4"></path>
+        </svg>
+        <span id="btnAnalyzeText">Sesi Analiz Et &amp; Dalga Formu Çıkar</span>
+      </button>
+    </section>
+
+    <!-- 02. SİMETRİK STÜDYO DALGA FORMU & CANLI İSTATİSTİKLER -->
+    <section class="glass-card waveform-section">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="step-badge">02</span>
+          <span>Stüdyo Dalga Formu &amp; Önizleme</span>
+        </div>
+        <button class="btn-magic" id="btnAutoThreshold" title="Ses histogramından en uygun eşik değerini otomatik hesapla">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+            <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"></path>
+          </svg>
+          <span>Otomatik Eşik</span>
+        </button>
+      </div>
+
+      <div class="waveform-stage">
+        <canvas id="waveformCanvas" width="720" height="140"></canvas>
+        <div class="waveform-hud hidden" id="waveformHoverHud">00:00.00 • -35 dB</div>
+        <div class="waveform-overlay" id="waveformEmptyHint">
+          <div class="empty-wave-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+              <line x1="4" y1="10" x2="4" y2="14"></line>
+              <line x1="8" y1="6" x2="8" y2="18"></line>
+              <line x1="12" y1="3" x2="12" y2="21"></line>
+              <line x1="16" y1="7" x2="16" y2="17"></line>
+              <line x1="20" y1="10" x2="20" y2="14"></line>
+            </svg>
+          </div>
+          <span>Analiz için <strong>"Sesi Analiz Et"</strong> butonuna dokunun</span>
+        </div>
+      </div>
+
+      <div class="waveform-legend">
+        <span class="legend-item"><i class="dot-keep"></i> Konuşma</span>
+        <span class="legend-item"><i class="dot-tail"></i> Cümle Sonu Koruma</span>
+        <span class="legend-item"><i class="dot-cut"></i> Kesilecek Sessizlik</span>
+      </div>
+
+      <!-- Görsel Oran Barı -->
+      <div class="ratio-bar-wrap">
+        <div class="ratio-bar-track">
+          <div class="ratio-bar-cut" id="ratioCutBar" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- 4'lü Stüdyo İstatistik Kartları -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-label">Kesim Sayısı</span>
+          <strong class="stat-value" id="statCount">0</strong>
+        </div>
+        <div class="stat-box highlight-cut">
+          <span class="stat-label">Atılan Süre</span>
+          <strong class="stat-value" id="statCutTime">00:00.00</strong>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Yeni Süre</span>
+          <strong class="stat-value" id="statKeptTime">00:00.00</strong>
+        </div>
+        <div class="stat-box highlight-gain">
+          <span class="stat-label">Net Kazanç</span>
+          <strong class="stat-value" id="statPercent">%0</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. KESİM PARAMETRELERİ & CÜMLE SONU KORUMASI -->
+    <section class="glass-card">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="step-badge">03</span>
+          <span>Hassasiyet &amp; Cümle Sonu Koruması</span>
+        </div>
+        <span class="hint-tag" title="Sürgülere çift tıklayarak varsayılan değere sıfırlayabilirsiniz">Çift Tık = Sıfırla</span>
+      </div>
+
+      <!-- Hazır Profiller -->
+      <div class="presets-row">
+        <button class="preset-chip active" data-preset="standard">
+          <span class="preset-dot"></span>YouTube
+        </button>
+        <button class="preset-chip" data-preset="fast">
+          <span class="preset-dot"></span>Reels / Shorts
+        </button>
+        <button class="preset-chip" data-preset="podcast">
+          <span class="preset-dot"></span>Podcast
+        </button>
+        <button class="preset-chip" data-preset="noisy">
+          <span class="preset-dot"></span>Gürültülü
+        </button>
+      </div>
+
+      <div class="sliders-container">
+        <!-- Sessizlik Eşiği -->
+        <div class="control-block">
+          <div class="control-header">
+            <label for="sliderThreshold">Sessizlik Eşiği (Threshold)</label>
+            <span class="val-pill" id="valThreshold">-35 dB</span>
+          </div>
+          <input type="range" id="sliderThreshold" min="-65" max="-10" step="1" value="-35" data-default="-35" />
+        </div>
+
+        <!-- Cümle Sonu Koruması -->
+        <div class="control-block highlight-control">
+          <div class="control-header">
+            <label for="sliderTailProtect" title="Cümle biterken düşen ses seviyesinin erken kesilmesini önler">
+              🛡️ Cümle Sonu Koruması (Alçalan Ses Toleransı)
+            </label>
+            <span class="val-pill crimson-pill" id="valTailProtect">8 dB</span>
+          </div>
+          <input type="range" id="sliderTailProtect" min="0" max="16" step="1" value="8" data-default="8" />
+        </div>
+
+        <!-- İkili Sürgü: Cümle Sonu Payı & Cümle Başı Payı -->
+        <div class="dual-controls">
+          <div class="control-block">
+            <div class="control-header">
+              <label for="sliderPadStart" title="Cümle bittikten sonra kesmeden önce bırakılan ekstra süre">Cümle Sonu Payı</label>
+              <span class="val-pill crimson-pill" id="valPadStart">220 ms</span>
+            </div>
+            <input type="range" id="sliderPadStart" min="0" max="800" step="10" value="220" data-default="220" />
+          </div>
+
+          <div class="control-block">
+            <div class="control-header">
+              <label for="sliderPadEnd" title="Yeni cümle başlamadan önce bırakılan nefes payı">Cümle Başı Payı</label>
+              <span class="val-pill" id="valPadEnd">120 ms</span>
+            </div>
+            <input type="range" id="sliderPadEnd" min="0" max="600" step="10" value="120" data-default="120" />
+          </div>
+        </div>
+
+        <!-- İkili Sürgü: Min Sessizlik & Tık Filtresi -->
+        <div class="dual-controls">
+          <div class="control-block">
+            <div class="control-header">
+              <label for="sliderMinSilence" title="Kesilecek en kısa sessizlik süresi">Min. Sessizlik</label>
+              <span class="val-pill" id="valMinSilence">420 ms</span>
+            </div>
+            <input type="range" id="sliderMinSilence" min="120" max="2500" step="20" value="420" data-default="420" />
+          </div>
+
+          <div class="control-block">
+            <div class="control-header">
+              <label for="sliderMinSpeech" title="Sessizlik ortasındaki anlık mikrofon tıkırtılarını yoksayma süresi">Tık / Nefes Filtresi</label>
+              <span class="val-pill" id="valMinSpeech">90 ms</span>
+            </div>
+            <input type="range" id="sliderMinSpeech" min="20" max="500" step="10" value="90" data-default="90" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04. GÖRSEL İŞLEM MODU SEÇİCİ & UYGULA -->
+    <section class="glass-card action-section">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="step-badge">04</span>
+          <span>Kurgu Modu &amp; Uygula</span>
+        </div>
+      </div>
+
+      <!-- 5'li Görsel Mod Seçici -->
+      <div class="mode-cards-grid" id="modeCardsGrid">
+        <button type="button" class="mode-card active" data-mode="ripple" title="Sessiz yerleri kesip siler ve kalan konuşmaları boşluksuz uç uca birleştirir">
+          <span class="mode-icon">✂️</span>
+          <span class="mode-name">Birleştir</span>
+          <span class="mode-sub">Ripple Cut</span>
+        </button>
+        <button type="button" class="mode-card" data-mode="lift" title="Sessiz yerleri kesip siler, yerlerinde boşluk bırakır">
+          <span class="mode-icon">🕳️</span>
+          <span class="mode-name">Boşluklu</span>
+          <span class="mode-sub">Lift Cut</span>
+        </button>
+        <button type="button" class="mode-card" data-mode="disable" title="Sessiz parçaları silmez, timeline üzerinde pasif (disabled) bırakır">
+          <span class="mode-icon">🔇</span>
+          <span class="mode-name">Pasif Yap</span>
+          <span class="mode-sub">Zararsız</span>
+        </button>
+        <button type="button" class="mode-card" data-mode="razor" title="Sessizlik başlangıç ve bitişlerine sadece jilet (kesik) atar">
+          <span class="mode-icon">🔪</span>
+          <span class="mode-name">Jilet At</span>
+          <span class="mode-sub">Sadece Kes</span>
+        </button>
+        <button type="button" class="mode-card" data-mode="markers" title="Kesim yapmadan timeline üzerine işaretleyiciler ekler">
+          <span class="mode-icon">🏷️</span>
+          <span class="mode-name">Marker</span>
+          <span class="mode-sub">İşaretle</span>
+        </button>
+      </div>
+
+      <select id="actionModeSelect" class="sr-only" aria-hidden="true">
+        <option value="ripple" selected>Ripple</option>
+        <option value="lift">Lift</option>
+        <option value="disable">Disable</option>
+        <option value="razor">Razor</option>
+        <option value="markers">Markers</option>
+      </select>
+
+      <button class="btn-execute-cta" id="btnExecute" disabled>
+        <span class="cta-glow"></span>
+        <span class="cta-label" id="btnExecuteLabel">✂️ Sessiz Yerleri Kes ve Birleştir</span>
+      </button>
+    </section>
+
+    <!-- BULUNAN SESSİZ BÖLGELER ÇEKMECESİ (ACCORDION) -->
+    <section class="glass-card regions-drawer" id="regionsDrawer">
+      <div class="drawer-header" id="drawerToggleHeader">
+        <div class="section-title">
+          <span class="drawer-chevron" id="drawerChevron">▾</span>
+          <span>Kesilecek Bölgeler Listesi</span>
+          <span class="count-pill" id="regionListCount">0</span>
+        </div>
+        <div class="region-tools" onclick="event.stopPropagation()">
+          <button class="tool-link" id="btnToggleAllRegions" title="Tümünü Seç / Kaldır">Tümünü Seç</button>
+          <span class="tool-sep">|</span>
+          <button class="tool-link" id="btnClearMarkers" title="Timeline üzerindeki sessizlik işaretleyicilerini temizle">Markerları Sil</button>
+        </div>
+      </div>
+
+      <div class="drawer-body" id="drawerBody">
+        <div class="regions-list" id="regionsListContainer">
+          <div class="empty-hint">Analiz sonrasında kesilecek sessiz aralıklar burada listelenir. Herhangi bir satıra tıklayarak Premiere'de o saniyeye gidebilirsiniz.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BİLDİRİM TOAST -->
+    <div id="toastMessage" class="toast hidden"></div>
+  </div>
+
+  <script src="CSInterface.js"></script>
+  <script src="detector.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

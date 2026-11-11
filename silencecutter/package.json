@@ -1,0 +1,19 @@
+{
+  "name": "silencecutter-pro",
+  "version": "2.0.0",
+  "description": "Adobe Premiere Pro için anlık dalga formu önizlemeli, otomatik eşik algılamalı ve sıfır dış bağımlılıklı sessizlik kesici (Silence Cutter) CEP eklentisi.",
+  "main": "node/analyzer.js",
+  "scripts": {
+    "test": "node --test tests/plugin.test.js",
+    "build:analyzer": "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe /nologo /optimize+ /out:bin\\AudioAnalyzer.exe src\\AudioAnalyzer.cs"
+  },
+  "keywords": [
+    "premiere-pro",
+    "cep",
+    "silence-cutter",
+    "autocut",
+    "video-editing",
+    "extendscript"
+  ],
+  "license": "MIT"
+}
